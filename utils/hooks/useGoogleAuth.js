@@ -8,7 +8,6 @@ export function useGoogleAuth() {
         androidClientId: "293058782-8ua6q1p48tqv8kc5rq6vguoanmvk3tu1.apps.googleusercontent.com",
         iosClientId: "293058782-fhfmb731mohtp66uaou2ttsde8r7ocov.apps.googleusercontent.com",
     });
-    useauth
 
     const auth = getAuth();
 

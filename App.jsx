@@ -6,20 +6,19 @@ import { app, db } from './utils/firebase/initfirebase';
 import { initializeDatabase } from './initdatabase';
 import { AuthNavigator } from './components/navigation/AuthNavigator';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { AuthProvider, useAuth } from './context/AppContext';
+import { AuthProvider } from './context/AppContext';
 import { AppNavigator } from './components/navigation/AppNavigator';
+import { MainNavigation } from './components/navigation/MainNavigation';
 
 
 export default function App() {
-  const { user } = useAuth();
+  console.log("starting the application ")
   return (
     <SafeAreaProvider>
       <SQLiteProvider databaseName="smart-community-marketplace.db" onInit={initializeDatabase}>
         <AuthProvider>
           <View style={styles.container}>
-            <NavigationContainer>
-              {user ? <AppNavigator /> : <AuthNavigator />}
-            </NavigationContainer>
+            <MainNavigation />
           </View>
         </AuthProvider>
       </SQLiteProvider>

@@ -2,12 +2,11 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Login } from "../../screens/auth/login";
 import { SignUp } from "../../screens/auth/signup";
-import { useAuth } from "../../context/AppContext";
 import { createDrawerNavigator } from "@react-navigation/drawer";
+import { Home } from "../../screens/app/home";
 
 const Tab = createDrawerNavigator();
-const { user } = useAuth()
-export const AppNavigator = () => {
+ export const AppNavigator = () => {
     console.log("Tabs component rendered");
     return (
         <Tab.Navigator
@@ -39,7 +38,7 @@ export const AppNavigator = () => {
                 }
             }}
         >
-            <Tab.Screen name="Home" component={Login} />
+            <Tab.Screen name="Home" component={Home} />
         </Tab.Navigator>
     )
 }
