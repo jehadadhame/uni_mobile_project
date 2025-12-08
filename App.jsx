@@ -16,11 +16,11 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <SQLiteProvider databaseName="smart-community-marketplace.db" onInit={initializeDatabase}>
-        <AuthProvider>
-          <View style={styles.container}>
-            <MainNavigation />
-          </View>
-        </AuthProvider>
+      <AuthProvider>
+        <View style={styles.container}>
+          <MainNavigation />
+        </View>
+      </AuthProvider>
       </SQLiteProvider>
     </SafeAreaProvider>
   );

@@ -10,10 +10,11 @@ import { useNavigation } from "@react-navigation/native";
 export const Login = () => {
     console.log("Login component rendered");
     const navigation = useNavigation();
+    console.log("navigation.getId : ", navigation.getId())
     const [credential, setCredential] = useState({});
     const [error, setError] = useState(null);
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [password, setPassword] = useState("");   
     const clearErrors = () => {
         setError(null);
     }
