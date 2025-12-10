@@ -1,63 +1,131 @@
-import { Input } from "@rneui/themed"
 import { StyleSheet, Text, View } from "react-native"
-import { app } from "../../utils/firebase/initfirebase";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
-import { Button } from "@rneui/base";
 import { useNavigation } from "@react-navigation/native";
-
+import { TextInput, Button } from "react-native-paper";
 
 export const Login = () => {
-    console.log("Login component rendered");
     const navigation = useNavigation();
-    console.log("navigation.getId : ", navigation.getId())
-    const [credential, setCredential] = useState({});
     const [error, setError] = useState(null);
     const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");   
-    const clearErrors = () => {
-        setError(null);
-    }
-    const onLogin = () => {
-        const auth = getAuth();
-        console.log("Attempting login with email: ", email);
-        console.log("Attempting login with password: ", password);
-        signInWithEmailAndPassword(auth, email, password).then((userCredential) => {
-            const user = userCredential.user;
-            console.log("Logged in user: ", user);
-            console.log("Logged in userCredential: ", userCredential);
-        }).catch((error) => {
-            console.log("Login error: ", error);
-            setError(error.message);
-        })
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
 
+    const clearErrors = () => setError(null);
+
+    const onLogin = async () => {
+        const auth = getAuth();
+        try {
+            setLoading(true)
+            const userCredential = await signInWithEmailAndPassword(auth, email, password)
+            console.log("Logged in user: ", userCredential.user.email);
+            setLoading(false)
+        } catch (err) {
+            console.log("Login error: ", err);
+            setError(err.message);
+            setLoading(false)
+        }
     }
+
     return (
         <View style={styles.container}>
-            <Text>Login Screen</Text>
+            <Text style={styles.title}>Login</Text>
 
-            <Input placeholder="Email" inputContainerStyle={styles.input} onChangeText={(email) => { setEmail(email); clearErrors(); }} />
-            <Input placeholder="Password" secureTextEntry={true} inputContainerStyle={styles.input} onChangeText={(password) => { setPassword(password); clearErrors() }} />
-            <Button title="Login" onPress={onLogin} />
-            <Text>Don't u have an acount create one</Text>
-            <Button title="SignUp" onPress={() => {
-                navigation.navigate("SignUp")
-            }} />
-            {error && <Text style={{ color: 'red' }}>{error}</Text>}
+            <TextInput
+                label="Email"
+                mode="outlined"
+                style={styles.input}
+                outlineColor="#ccc"
+                activeOutlineColor="#4A90E2"
+                onChangeText={(email) => { setEmail(email); clearErrors(); }}
+            />
+
+            <TextInput
+                label="Password"
+                mode="outlined"
+                secureTextEntry
+                style={styles.input}
+                outlineColor="#ccc"
+                activeOutlineColor="#4A90E2"
+                onChangeText={(password) => { setPassword(password); clearErrors(); }}
+            />
+
+
+            <Button
+                mode="contained"
+                onPress={onLogin}
+                loading={loading}
+                style={styles.loginButton}
+                contentStyle={{ paddingVertical: 8 }}
+            >
+                Login
+            </Button>
+
+            <Text style={styles.text}>
+                Don't have an account?
+            </Text>
+
+            <Button
+                mode="text"
+                onPress={() => navigation.navigate("SignUp")}
+                style={styles.signupButton}
+            >
+                Sign Up
+            </Button>
+
+            {error && <Text style={styles.error}>{error}</Text>}
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
         padding: 20,
-        gap: 15,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 10,
-        paddingHorizontal: 10,
+        paddingTop: 80,
         backgroundColor: "#fff",
+        gap: 20,
+    },
+
+    title: {
+        fontSize: 30,
+        fontWeight: "700",
+        textAlign: "center",
+        marginBottom: 10,
+        color: "#333",
+    },
+
+    input: {
+        backgroundColor: "#fafafa",
+        borderRadius: 12,
+        fontSize: 16,
+        paddingVertical: 4,
+        elevation: 2,         // small shadow on Android
+        shadowColor: "#000",  // small shadow on iOS
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        shadowOffset: { width: 0, height: 2 },
+    },
+
+    loginButton: {
+        marginTop: 10,
+        borderRadius: 10,
+    },
+
+    text: {
+        textAlign: "center",
+        fontSize: 14,
+        color: "#666",
+    },
+
+    signupButton: {
+        alignSelf: "center",
+    },
+
+    error: {
+        color: "red",
+        textAlign: "center",
+        marginTop: 10,
+        fontSize: 14,
     },
 });

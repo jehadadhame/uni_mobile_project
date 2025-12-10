@@ -1,4 +1,4 @@
-export const ErrorMapping = (errorCode) => {
+export const AuthErrorMapping = (errorCode) => {
     console.log("error maping");
     switch (errorCode) {
         case "auth/network-request-failed":

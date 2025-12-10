@@ -1,11 +1,13 @@
-import { Button } from "@rneui/base";
-import { Input } from "@rneui/themed";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
 import { Text, StyleSheet, View } from "react-native";
 import { useGoogleAuth } from "../../utils/hooks/useGoogleAuth"; // your existing hook
 import { FirebaseError } from "firebase/app";
-import { ErrorMapping } from "../../utils/firebase/errorMapping";
+import { AuthErrorMapping } from "../../utils/firebase/errorMapping";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from "../../utils/firebase/initfirebase";
+import { Button } from "react-native";
+import { TextInput } from "react-native-paper";
 
 export const SignUp = () => {
     const [userName, setUserName] = useState("");
@@ -15,17 +17,27 @@ export const SignUp = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const { promptAsync, request } = useGoogleAuth();
+
     const auth = getAuth();
 
     const onSignUp = async () => {
         try {
             setLoading(true);
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
             console.log("User created:", userCredential.user);
+
+            await setDoc(doc(db, "users", user.uid), {
+                name: userName,
+                email: email,
+                createdAt: new Date(),
+                role: role
+            })
+
         } catch (error) {
             console.log("SignUp error:", error.message);
             console.log("SignUp error:", error.code);
-            setError(ErrorMapping(error.code))
+            setError(AuthErrorMapping(error.code))
 
         } finally {
             setLoading(false);
@@ -36,37 +48,40 @@ export const SignUp = () => {
         <View style={styles.container}>
             <Text style={styles.title}>Sign Up</Text>
 
-            <Input
-                placeholder="Username"
+            <TextInput
+                label="Username"
                 inputContainerStyle={styles.input}
                 onChangeText={setUserName}
             />
-            <Input
-                placeholder="Email"
+            <TextInput
+                label="Email"
                 inputContainerStyle={styles.input}
                 onChangeText={setEmail}
             />
-            <Input
-                placeholder="Role"
+            <TextInput
+                label="Role"
                 inputContainerStyle={styles.input}
                 onChangeText={setRole}
             />
-            <Input
-                placeholder="Password"
+            <TextInput
+                label="Password"
                 secureTextEntry
                 inputContainerStyle={styles.input}
                 onChangeText={setPassword}
             />
 
-            <Button title="Sign Up" onPress={onSignUp} loading={loading} />
-
+            <Button title="Sign Up" onPress={onSignUp} loading={loading} >
+                Sign Up
+            </Button>
             <View style={{ height: 20 }} />
 
             <Button
                 title="Sign Up with Google"
                 disabled={!request}
                 onPress={() => promptAsync()}
-            />
+            >
+                Sign Up with Google
+            </Button>
             {error && <Text style={{ color: 'red' }}>{error}</Text>}
 
         </View>
