@@ -1,26 +1,64 @@
 import { useNavigation } from "@react-navigation/native";
-import { deleteDoc, doc } from "firebase/firestore";
+import { addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, setDoc, updateDoc } from "firebase/firestore";
 import { Text, View, StyleSheet } from "react-native";
 import { db } from "../../../utils/firebase/initfirebase";
 import { useState } from "react";
 import { Button } from "react-native-paper";
 import { UserRole } from "../../../data/users/UserRole";
+import { getAuth } from "firebase/auth";
+import { checkIfDocExists } from "../../../utils/firebase/checkIfDocExist";
 
-export const ItemCard = ({ item, role }) => {
+export const ItemCard = ({ item, uid, role, isFavoriteItemScreen }) => {
     console.log("reandering ItemCard")
+
     const navigation = useNavigation();
-    const [loading, setLoading] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [favoriteLoading, setFavoriteLoading] = useState(false);
 
     const onDelete = async () => {
         try {
-            setLoading(true);
+            setDeleteLoading(true);
             await deleteDoc(doc(db, "items", item.id));
         } catch (error) {
             console.log(error);
         } finally {
-            setLoading(false);
+            setDeleteLoading(false);
         }
     };
+
+    const onAddOrRemoveFromFavorite = async () => {
+        try {
+            setFavoriteLoading(true)
+            if (isFavoriteItemScreen) await removeFromFavorite()
+            else await addToFavorite()
+        } catch (e) {
+            console.log(e)
+        } finally {
+            setFavoriteLoading(false)
+        }
+
+    }
+
+    const removeFromFavorite = async () => {
+        const document = doc(db, "favorites", uid)
+        await updateDoc(document, {
+            regions: arrayRemove(item.id)
+        })
+    }
+
+    const addToFavorite = async () => {
+        const document = doc(db, "favorites", uid)
+
+        if (await checkIfDocExists(document)) {
+            await updateDoc(document, {
+                regions: arrayUnion(item.id)
+            })
+        } else {
+            await setDoc(document, {
+                regions: [item.id]
+            })
+        }
+    }
 
     return (
         <View style={styles.card}>
@@ -49,21 +87,24 @@ export const ItemCard = ({ item, role }) => {
                 {(role === UserRole.Admin || role === UserRole.Seller) && <Button
                     mode="contained"
                     onPress={onDelete}
-                    loading={loading}
+                    loading={deleteLoading}
                     style={styles.deleteButton}
                     labelStyle={styles.buttonLabel}
                 >
-                    {loading ? "Deleting…" : "Delete"}
+                    {deleteLoading ? "Deleting…" : "Delete"}
                 </Button>}
 
                 {(role == UserRole.Buyer) && <Button
                     mode="contained"
-                    onPress={onDelete}
-                    loading={loading}
+                    onPress={onAddOrRemoveFromFavorite}
+                    loading={favoriteLoading}
                     style={styles.deleteButton}
                     labelStyle={styles.buttonLabel}
                 >
-                    {loading ? "Adding..." : "Add To favorites"}
+                    {isFavoriteItemScreen ?
+                        favoriteLoading ? "Removing..." : "remove from favorites"
+                        : favoriteLoading ? "Adding..." : "Add To favorites"
+                    }
                 </Button>}
             </View>
         </View>

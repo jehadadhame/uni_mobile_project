@@ -7,6 +7,7 @@ import { UsersScreen } from '../../screens/app/users/users';
 import { ItemNavigation } from './recourse-navigation/ItemNavigation';
 import { UpdateItem } from '../../screens/app/items/UpdateItem';
 import { getAuth, signOut } from 'firebase/auth';
+import { FavoriteItem } from '../../screens/app/items/FavoriteItem';
 
 const Drawer = createDrawerNavigator();
 const auth = getAuth();
@@ -82,7 +83,13 @@ export const AppNavigator = () => {
                     title: "Items"
                 }}
             />
-
+            <Drawer.Screen
+                name='FavoriteItem'
+                component={FavoriteItem}
+                options={{
+                    title: "favorites"
+                }}
+            />
             <Drawer.Screen
                 name="Users"
                 component={UsersScreen}

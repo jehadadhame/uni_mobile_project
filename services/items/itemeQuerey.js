@@ -1,4 +1,4 @@
-import { collection, onSnapshot, query, where, orderBy } from "firebase/firestore"
+import { collection, onSnapshot, query, where, orderBy, documentId } from "firebase/firestore"
 import { useEffect, useState } from "react"
 import { db } from "../../utils/firebase/initfirebase"
 import { ItemStatus } from "../../data/items/ItemStatus"
@@ -11,17 +11,11 @@ export const useItemsQuery = ({
     orderyBy,
     minPrice,
     maxPrice,
-    hasPriceFilter
+    hasPriceFilter,
+    itemsIds = null,
 }) => {
     const [items, setItems] = useState(null)
-    console.log("in search Query searchTerm : ", searchTerm)
-    console.log("in search Query user : ", user)
-    console.log("in search Query statusFilter : ", statusFilter)
-    console.log("in search Query categoryFilter : ", categoryFilter)
-    console.log("in search Query orderyBy : ", orderyBy)
-    console.log("in search Query minPrice : ", minPrice)
-    console.log("in search Query maxPrice : ", maxPrice)
-    console.log("in search Query hasPriceFilter : ", hasPriceFilter)
+
     useEffect(() => {
         const conditions = []
 
@@ -47,9 +41,21 @@ export const useItemsQuery = ({
             conditions.push(where("price", "<=", maxPrice))
         }
 
+        if (itemsIds != null) {
+            if (itemsIds.length == 0) {
+                conditions.push(where(documentId(), "in", ["9283f8as"]/** it's just a random number so if it's empty list as the case when 
+                favorit screen invoks it without favorits items firebase will rais an error */))
+            }
+            conditions.push(where(documentId(), "in", itemsIds))
+            console.log(`in querey docuement id :  ${documentId()} , itemsids ${itemsIds}`)
+        } else {
+            console.log("in querey false : ", itemsIds)
+        }
+
         if (orderyBy) {
             conditions.push(orderBy(orderyBy))
         }
+
 
 
         const q = query(collection(db, "items"), ...conditions)
@@ -68,6 +74,6 @@ export const useItemsQuery = ({
 
         return () => unsub()
 
-    }, [searchTerm, user.uid, user.role, orderyBy, statusFilter, categoryFilter, minPrice, maxPrice, hasPriceFilter])
+    }, [searchTerm, user.uid, user.role, orderyBy, statusFilter, categoryFilter, minPrice, maxPrice, hasPriceFilter, itemsIds])
     return items;
 }

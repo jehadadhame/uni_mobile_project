@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native"
-import { collection, onSnapshot, query, where, orderBy } from "firebase/firestore"
+import { collection, onSnapshot, query, where, orderBy, getDoc, doc } from "firebase/firestore"
 import { useEffect, useState } from "react"
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import { db } from "../../../utils/firebase/initfirebase"
@@ -12,14 +12,13 @@ import { ItemCategories } from "../../../data/items/ItemCategories"
 import { ItemCondition } from "../../../data/items/ItemCondition"
 import { useItemsQuery } from "../../../services/items/itemeQuerey"
 
-export const ItemsScreen = () => {
+export const FavoriteItem = () => {
 
     const { user } = useAuth();
-    console.log("user in itemscreen : ", user)
+    console.log("user in favorites screen : ", user)
     const navigation = useNavigation()
 
 
-    // const [items, setItems] = useState(null)
     const [searchTerm, setSearchTearm] = useState("")
     const [categoryFilter, setCategoryFilter] = useState(null)
     const [statusFilter, setStatusFilter] = useState(null)
@@ -28,7 +27,8 @@ export const ItemsScreen = () => {
     const [hasPriceFilter, setHasPriceFilter] = useState(false)
     const [minPrice, setMinPrice] = useState(0)
     const [maxPrice, setMaxPrice] = useState(0)
-
+    const [favoriteItems, setFavoriteItems] = useState([])
+    console.log("favoriteItems : ", favoriteItems)
     const handelSettingMinPrice = (minPriceToSet) => {
         minPriceToSet = Number(minPriceToSet);
         setHasPriceFilter(true)
@@ -55,6 +55,15 @@ export const ItemsScreen = () => {
         setHasPriceFilter(false);
         setMinPrice(0);
     }
+    useEffect(() => {
+        const getFavoriteList = async () => {
+            const itemsDoc = await getDoc(doc(db, "favorites", user.uid))
+            console.log("favorites : ", itemsDoc)
+            setFavoriteItems(itemsDoc.data()?.regions ?? [])
+        }
+        getFavoriteList()
+    }, [])
+
 
     const items = useItemsQuery({
         searchTerm,
@@ -64,14 +73,13 @@ export const ItemsScreen = () => {
         orderyBy,
         minPrice,
         maxPrice,
-        hasPriceFilter
-    }
-
-    )
+        hasPriceFilter,
+        itemsIds: favoriteItems,
+    })
     return (
         <>
             <ScrollView style={styles.container}>
-                <Text style={styles.title}>Items List</Text>
+                <Text style={styles.title}>Favorite Items List</Text>
 
                 <Searchbar
                     onChangeText={setSearchTearm}
@@ -88,10 +96,11 @@ export const ItemsScreen = () => {
                             key={item.id}
                             onPress={() => navigation.navigate("ItemDetails", { item })}
                         >
-                            <ItemCard item={item} role={user.role} isFavoriteItemScreen={false} uid={user.uid} />
+                            <ItemCard item={item} role={user.role} isFavoriteItemScreen={true} uid={user.uid} />
                         </TouchableOpacity>
                     ))}
                 </View>
+
 
                 <View style={styles.addButton}>
                     {(user.role == UserRole.Admin || user.role == UserRole.Seller) && <Button onPress={() => navigation.navigate("AddItem")}>
