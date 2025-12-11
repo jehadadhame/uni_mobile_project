@@ -1,67 +1,148 @@
 import { useNavigation } from "@react-navigation/native"
-import { collection, onSnapshot, query } from "firebase/firestore"
+import { collection, onSnapshot, query, where, orderBy } from "firebase/firestore"
 import { useEffect, useState } from "react"
-import { Button, ScrollView, View, Text, StyleSheet, TouchableOpacity } from "react-native"
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import { db } from "../../../utils/firebase/initfirebase"
 import { ItemCard } from "../../../components/screen/items/ItemCard"
 import { useAuth } from "../../../context/AppContext"
 import { UserRole } from "../../../data/users/UserRole"
+import { Button, Modal, Searchbar, SegmentedButtons, TextInput } from "react-native-paper"
+import { ItemStatus } from "../../../data/items/ItemStatus"
+import { ItemCategories } from "../../../data/items/ItemCategories"
+import { ItemCondition } from "../../../data/items/ItemCondition"
+import { useItemsQuery } from "../../../services/items/itemeQuerey"
+
 export const ItemsScreen = () => {
+
     const { user } = useAuth();
-    console.log("user : ", user)
-
-    console.log("rendering ItemScreen ")
+    console.log("user in itemscreen : ", user)
     const navigation = useNavigation()
-    const [items, setItems] = useState(null)
 
-    useEffect(() => {
-        if (user.role == UserRole.Buyer) {// TODO: use enum value?
-            const q = query(collection(db, "items"))
-            const unsub = onSnapshot(q, (snap) => {
-                const list = []
-                snap.forEach((doc) => list.push({ id: doc.id, ...doc.data() }))
-                setItems(list)
-            }, (err) => console.log(err))//TODO : present the error and map them to a human friendly errors
 
-            return () => unsub()
-        } else if (user.role == UserRole.Seller || user.role == UserRole.Admin) {
-            const q = query(collection(db, "items"))
-            const unsub = onSnapshot(q, (snap) => {
-                const list = []
-                snap.forEach((doc) => {
-                    console.log("doc.data().createdBy : ", doc.data().createdBy)
-                    console.log("user.uid : ", user.uid)
-                    if (doc.data().createdBy == user.uid) {
-                        list.push({ id: doc.id, ...doc.data() })
-                    }
-                })
-                setItems(list)
-            }, (err) => console.log(err))//TODO : present the error and map them to a human friendly errors
+    // const [items, setItems] = useState(null)
+    const [searchTerm, setSearchTearm] = useState("")
+    const [categoryFilter, setCategoryFilter] = useState(null)
+    const [statusFilter, setStatusFilter] = useState(null)
+    const [orderyBy, setOrderBy] = useState(null)
+    const [FilterVisible, setFilterVisible] = useState(false)
+    const [hasPriceFilter, setHasPriceFilter] = useState(false)
+    const [minPrice, setMinPrice] = useState(0)
+    const [maxPrice, setMaxPrice] = useState(0)
 
-            return () => unsub()
+    const handelSettingMinPrice = (minPriceToSet) => {
+        minPriceToSet = Number(minPriceToSet);
+        setHasPriceFilter(true)
+        if (minPriceToSet > maxPrice) {
+            setMinPrice(maxPrice - 1);
+        } else {
+            setMinPrice(minPriceToSet);
         }
+    }
+    const handelSettingMaxPrice = (maxPriceToSet) => {
+        maxPriceToSet = Number(maxPriceToSet)
+        setHasPriceFilter(true)
+        if (maxPriceToSet < minPrice) {
+            setMaxPrice(minPrice + 1)
+        } else {
+            setMaxPrice(maxPriceToSet)
+        }
+    }
 
-    }, [])
+    console.log("categoryFilte : ", categoryFilter)
+    const clearFilters = () => {
+        setStatusFilter(false);
+        setCategoryFilter(false);
+        setHasPriceFilter(false);
+        setMinPrice(0);
+    }
 
+    const items = useItemsQuery({
+        searchTerm,
+        user,
+        statusFilter,
+        categoryFilter,
+        orderyBy,
+        minPrice,
+        maxPrice,
+        hasPriceFilter
+    }
+
+    )
     return (
-        <ScrollView style={styles.container}>
-            <Text style={styles.title}>items list</Text>
+        <>
+            <ScrollView style={styles.container}>
+                <Text style={styles.title}>Items List</Text>
 
-            <View style={styles.listContainer}>
-                {items && items.map((item) => (
-                    <TouchableOpacity key={item.id} onPress={() => navigation.navigate("ItemDetails", { item: item })}>
-                        <ItemCard item={item} role={user.role} />
-                    </TouchableOpacity>
-                ))}
-            </View>
-
-            <View style={styles.addButton}>
-                <Button
-                    title="add"
-                    onPress={() => navigation.navigate("AddItem")}
+                <Searchbar
+                    onChangeText={setSearchTearm}
+                    value={searchTerm}
                 />
-            </View>
-        </ScrollView>
+
+                <Button onPress={() => setFilterVisible(true)}>Filter</Button>
+                <Button onPress={() => clearFilters()}>clear Filters</Button>
+                <Button onPress={() => setOrderMenuVisible(true)}>Order By</Button>
+
+                <View style={styles.listContainer}>
+                    {items && items.map(item => (
+                        <TouchableOpacity
+                            key={item.id}
+                            onPress={() => navigation.navigate("ItemDetails", { item })}
+                        >
+                            <ItemCard item={item} role={user.role} />
+                        </TouchableOpacity>
+                    ))}
+                </View>
+
+
+                <View style={styles.addButton}>
+                    {(user.role == UserRole.Admin || user.role == UserRole.Seller) && <Button onPress={() => navigation.navigate("AddItem")}>
+                        Add
+                    </Button>}
+                </View>
+            </ScrollView>
+
+            {/* Filter Modal */}
+            <Modal visible={FilterVisible} onDismiss={() => setFilterVisible(false)}>
+                <View style={{ padding: 20, backgroundColor: "white" }}>
+                    <Text>Status:</Text>
+                    <SegmentedButtons
+                        value={statusFilter}
+                        onValueChange={setStatusFilter}
+                        buttons={[
+                            { value: ItemStatus.sold, label: ItemStatus.sold },
+                            { value: ItemStatus.reserved, label: ItemStatus.reserved },
+                            { value: ItemStatus.available, label: ItemStatus.available },
+                        ]}
+                    />
+                    <Text>Condition:</Text>
+                    <SegmentedButtons
+                        value={statusFilter}
+                        onValueChange={setStatusFilter}
+                        buttons={[
+                            { value: ItemCondition.new, label: ItemCondition.new },
+                            { value: ItemCondition.used, label: ItemCondition.used },
+                        ]}
+                    />
+
+                    <Text>Category</Text>
+                    <SegmentedButtons
+                        value={categoryFilter}
+                        onValueChange={setCategoryFilter}
+                        buttons={[
+                            { value: ItemCategories.cpu, label: ItemCategories.cpu },
+                            { value: ItemCategories.gpu, label: ItemCategories.gpu },
+                            { value: ItemCategories.ram, label: ItemCategories.ram },
+                            { value: ItemCategories.nvmeSsd, label: ItemCategories.nvmeSsd },
+                        ]}
+                    />
+                    <Text>Price Range</Text>
+                    <TextInput label="Min Price" value={String(minPrice)} keyboardType="numeric" onChangeText={(txt) => handelSettingMinPrice(txt)} />
+                    <TextInput label="Max Price" value={String(maxPrice)} keyboardType="numeric" onChangeText={(txt) => handelSettingMaxPrice(txt)} />
+                    <Button onPress={() => setFilterVisible(false)}>Close</Button>
+                </View>
+            </Modal>
+
+        </>
     )
 }
 
@@ -91,3 +172,4 @@ const styles = StyleSheet.create({
         width: 120,
     }
 })
+

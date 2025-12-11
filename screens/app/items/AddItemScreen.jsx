@@ -7,6 +7,9 @@ import { getAuth } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../../context/AppContext";
 import { Item } from "../../../data/items/Item"
+import { ItemStatus } from "../../../data/items/ItemStatus";
+import { ItemCondition } from "../../../data/items/ItemCondition";
+import { ItemCategories } from "../../../data/items/ItemCategories";
 
 export const AddItem = () => {
     const navigation = useNavigation()
@@ -47,33 +50,44 @@ export const AddItem = () => {
         console.log(res.toJSON().toString())
     }
     return (
-        <View style={styles.container}>
-            <Text style={styles.titleText}>Add Item</Text>
+        <View >
+            <Text >Add Item</Text>
 
             <TextInput
                 label="Title"
                 value={title}
                 onChangeText={setTitle}
-                style={styles.input}
+
             />
             <TextInput
                 label="Price"
                 value={price.toString()}
                 onChangeText={(text) => setPrice(Number(text))}
                 keyboardType="numeric"
-                style={styles.input}
+
             />
-            <TextInput
-                label="Category"
+
+            <Text>Category</Text>
+            <SegmentedButtons
                 value={category}
-                onChangeText={setCategory}
-                style={styles.input}
+                onValueChange={setCategory}
+                buttons={[
+                    { value: ItemCategories.cpu, label: ItemCategories.cpu },
+                    { value: ItemCategories.gpu, label: ItemCategories.gpu },
+                    { value: ItemCategories.ram, label: ItemCategories.ram },
+                    { value: ItemCategories.nvmeSsd, label: ItemCategories.nvmeSsd },
+                ]}
+
             />
-            <TextInput
-                label="Condition"
+            <Text>Condition</Text>
+            <SegmentedButtons
                 value={condition}
-                onChangeText={setCondition}
-                style={styles.input}
+                onValueChange={setCondition}
+                buttons={[
+                    { value: ItemCondition.new, label: ItemCondition.new },
+                    { value: ItemCondition.used, label: ItemCondition.used },
+                ]}
+
             />
             <TextInput
                 label="Description"
@@ -81,24 +95,24 @@ export const AddItem = () => {
                 onChangeText={setDescription}
                 multiline
                 numberOfLines={4}
-                style={styles.input}
-            />
 
+            />
+            <Text>Status</Text>
             <SegmentedButtons
                 value={status}
                 onValueChange={setStatus}
                 buttons={[
-                    { value: "sold", label: "Sold" },
-                    { value: "reserved", label: "Reserved" },
-                    { value: "available", label: "Available" },
+                    { value: ItemStatus.sold, label: ItemStatus.sold },
+                    { value: ItemStatus.reserved, label: ItemStatus.reserved },
+                    { value: ItemStatus.available, label: ItemStatus.available },
                 ]}
-                style={styles.segmentedContainer}
+
             />
             <Button
-                mode="contained"
+
                 onPress={onCreate}
                 loading={loading}
-                style={styles.buttonContainer}
+
                 contentStyle={{ paddingVertical: 8 }}
             >
                 Create
@@ -106,31 +120,3 @@ export const AddItem = () => {
         </View>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: "#f9f9f9",
-    },
-    titleText: {
-        fontSize: 24,
-        fontWeight: "bold",
-        marginBottom: 20,
-        color: "#333",
-        textAlign: "center",
-    },
-    input: {
-        marginBottom: 15,
-        backgroundColor: "white",
-        borderRadius: 5,
-    },
-    segmentedContainer: {
-        marginTop: 20,
-        marginBottom: 20,
-    },
-    buttonContainer: {
-        marginTop: 10,
-        borderRadius: 10,
-    },
-});

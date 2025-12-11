@@ -7,19 +7,22 @@ import { initializeDatabase } from './initdatabase';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from './context/AppContext';
 import { MainNavigation } from './components/navigation/MainNavigation';
+import { PaperProvider } from 'react-native-paper';
 
 
 export default function App() {
   console.log("starting the application ")
   return (
     <SafeAreaProvider>
-      <SQLiteProvider databaseName="smart-community-marketplace.db" onInit={initializeDatabase}>
-        <AuthProvider>
-          <View style={styles.container}>
-            <MainNavigation />
-          </View>
-        </AuthProvider>
-      </SQLiteProvider>
+      <PaperProvider>
+        <SQLiteProvider databaseName="smart-community-marketplace.db" onInit={initializeDatabase}>
+          <AuthProvider>
+            <View style={styles.container}>
+              <MainNavigation />
+            </View>
+          </AuthProvider>
+        </SQLiteProvider>
+      </PaperProvider>
     </SafeAreaProvider>
   );
 }
