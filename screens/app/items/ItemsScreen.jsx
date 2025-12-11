@@ -5,6 +5,7 @@ import { Button, ScrollView, View, Text, StyleSheet, TouchableOpacity } from "re
 import { db } from "../../../utils/firebase/initfirebase"
 import { ItemCard } from "../../../components/screen/items/ItemCard"
 import { useAuth } from "../../../context/AppContext"
+import { UserRole } from "../../../data/users/UserRole"
 export const ItemsScreen = () => {
     const { user } = useAuth();
     console.log("user : ", user)
@@ -14,7 +15,7 @@ export const ItemsScreen = () => {
     const [items, setItems] = useState(null)
 
     useEffect(() => {
-        if (user.role == "Buyer") {// TODO: use enum value?
+        if (user.role == UserRole.Buyer) {// TODO: use enum value?
             const q = query(collection(db, "items"))
             const unsub = onSnapshot(q, (snap) => {
                 const list = []
@@ -23,7 +24,7 @@ export const ItemsScreen = () => {
             }, (err) => console.log(err))//TODO : present the error and map them to a human friendly errors
 
             return () => unsub()
-        } else if (user.role == "Seller" || user.role == "Admin") {
+        } else if (user.role == UserRole.Seller || user.role == UserRole.Admin) {
             const q = query(collection(db, "items"))
             const unsub = onSnapshot(q, (snap) => {
                 const list = []

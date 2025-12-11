@@ -2,22 +2,25 @@ import { getAuth, onAuthStateChanged } from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
 import { createContext, useContext, useEffect, useState } from "react"
 import { db } from "../utils/firebase/initfirebase"
+import { User } from "../data/users/User"
 
 const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null)
     const auth = getAuth()
-    
+
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, async (currentUser) => {
             const userDoc = await getDoc(doc(db, "users", currentUser.uid))
-            const userToCache = {
+            const userToCache = new User({
                 uid: currentUser.uid,
-                ...userDoc.data()
-            }
+                name: userDoc.data().name,
+                email: userDoc.data().email,
+                role: userDoc.data().role,
+                createdAt: userDoc.data().createdAt
+            })
             setUser(userToCache)
-            console.log("in AuthProvider user : ", user)
         });
 
         return () => unsub();

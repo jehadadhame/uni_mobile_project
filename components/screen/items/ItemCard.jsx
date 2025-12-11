@@ -4,6 +4,7 @@ import { Text, View, StyleSheet } from "react-native";
 import { db } from "../../../utils/firebase/initfirebase";
 import { useState } from "react";
 import { Button } from "react-native-paper";
+import { UserRole } from "../../../data/users/UserRole";
 
 export const ItemCard = ({ item, role }) => {
     console.log("reandering ItemCard")
@@ -35,7 +36,7 @@ export const ItemCard = ({ item, role }) => {
             <View style={styles.buttonContainer}>
 
 
-                {(role == "Admin" || role == "Seller") &&
+                {(role == UserRole.Admin || role == UserRole.Seller) &&
                     <Button
                         mode="contained"
                         onPress={() => navigation.navigate("UpdateItem", { item: item })}
@@ -45,7 +46,7 @@ export const ItemCard = ({ item, role }) => {
                         Update
                     </Button>
                 }
-                {(role == "Admin" || role == "Seller") && <Button
+                {(role === UserRole.Admin || role === UserRole.Seller) && <Button
                     mode="contained"
                     onPress={onDelete}
                     loading={loading}
@@ -53,6 +54,16 @@ export const ItemCard = ({ item, role }) => {
                     labelStyle={styles.buttonLabel}
                 >
                     {loading ? "Deleting…" : "Delete"}
+                </Button>}
+
+                {(role == UserRole.Buyer) && <Button
+                    mode="contained"
+                    onPress={onDelete}
+                    loading={loading}
+                    style={styles.deleteButton}
+                    labelStyle={styles.buttonLabel}
+                >
+                    {loading ? "Adding..." : "Add To favorites"}
                 </Button>}
             </View>
         </View>

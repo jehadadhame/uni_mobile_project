@@ -6,6 +6,8 @@ import { db } from "../../../utils/firebase/initfirebase";
 import { getAuth } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { useAuth } from "../../../context/AppContext";
+import { Item } from "../../../data/items/Item"
+
 export const AddItem = () => {
     const navigation = useNavigation()
     const [title, setTitle] = useState("");
@@ -18,11 +20,10 @@ export const AddItem = () => {
     const auth = getAuth()
     console.log("created by : ", auth.currentUser.uid)
     const { user } = useAuth();
-    
+
     const onCreate = async () => {
         try {
-            setLoading(true);
-            const res = await addDoc(collection(db, "items"), {
+            const item = new Item({
                 title: title,
                 price: price,
                 category: category,
@@ -32,6 +33,9 @@ export const AddItem = () => {
                 createdAt: new Date(),
                 createdBy: auth.currentUser.uid
             })
+            console.log("new item object : ", item)
+            setLoading(true);
+            const res = await addDoc(collection(db, "items"), item.toFirestore())
             console.log("Created item with ID:", res.id);
             navigation.goBack();
         } catch (error) {

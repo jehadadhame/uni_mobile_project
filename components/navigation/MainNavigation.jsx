@@ -6,7 +6,7 @@ import { useAuth } from "../../context/AppContext";
 export const MainNavigation = () => {
     const { user } = useAuth();
 
-    console.log("in Main Navigator user : ", user?.email)
+    console.log("in Main Navigator user : ", user)
     return (
         <NavigationContainer>
             {user ? <AppNavigator /> : <AuthNavigator />}
