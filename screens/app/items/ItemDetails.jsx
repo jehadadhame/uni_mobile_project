@@ -1,20 +1,31 @@
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { deleteDoc, doc } from "firebase/firestore";
+import { deleteDoc, doc, getDoc } from "firebase/firestore";
 import { Text, View, StyleSheet } from "react-native";
 import { db } from "../../../utils/firebase/initfirebase";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "react-native-paper";
+import { useAuth } from "../../../context/AppContext"
+import { UserRole } from "../../../data/users/UserRole"
+import { AppCollections } from "../../../data/AppCollections";
 
 export const ItemDetails = () => {
     const router = useRoute();
+    const { user } = useAuth();
     const item = router.params?.['item']
     const navigation = useNavigation();
     const [loading, setLoading] = useState(false);
-
+    const [seller, setSeller] = useState(null)
+    useEffect(() => {
+        const getSeller = async () => {
+            if (user.role == UserRole.Buyer) {
+                getDoc(doc(db, ))
+            }
+        }
+    }, [])
     const onDelete = async () => {
         try {
             setLoading(true);
-            await deleteDoc(doc(db, "items", item.id));
+            await deleteDoc(doc(db, AppCollections.items, item.id));
         } catch (error) {
             console.log(error);
         } finally {

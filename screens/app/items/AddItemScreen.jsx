@@ -10,6 +10,7 @@ import { Item } from "../../../data/items/Item"
 import { ItemStatus } from "../../../data/items/ItemStatus";
 import { ItemCondition } from "../../../data/items/ItemCondition";
 import { ItemCategories } from "../../../data/items/ItemCategories";
+import { AppCollections } from "../../../data/AppCollections";
 
 export const AddItem = () => {
     const navigation = useNavigation()
@@ -38,7 +39,7 @@ export const AddItem = () => {
             })
             console.log("new item object : ", item)
             setLoading(true);
-            const res = await addDoc(collection(db, "items"), item.toFirestore())
+            const res = await addDoc(collection(db, AppCollections.items), item.toFirestore())
             console.log("Created item with ID:", res.id);
             navigation.goBack();
         } catch (error) {

@@ -3,6 +3,7 @@ import { doc, getDoc } from "firebase/firestore"
 import { createContext, useContext, useEffect, useState } from "react"
 import { db } from "../utils/firebase/initfirebase"
 import { User } from "../data/users/User"
+import { AppCollections } from "../data/AppCollections"
 
 const AuthContext = createContext(null)
 
@@ -12,7 +13,7 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, async (currentUser) => {
-            const userDoc = await getDoc(doc(db, "users", currentUser.uid))
+            const userDoc = await getDoc(doc(db, AppCollections.users, currentUser.uid))
             const userToCache = new User({
                 uid: currentUser.uid,
                 name: userDoc.data().name,

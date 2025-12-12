@@ -5,6 +5,7 @@ import { Text } from "react-native"
 import { getAuth } from "firebase/auth"
 import { View } from "react-native"
 import { UserCard } from "../../../components/screen/users/userCard"
+import { AppCollections } from "../../../data/AppCollections"
 
 export const UsersScreen = () => {
     const [users, setUsers] = useState(null)
@@ -13,7 +14,7 @@ export const UsersScreen = () => {
 
     useEffect(() => {
         console.log("featching users data")
-        const q = query(collection(db, "users"))
+        const q = query(collection(db, AppCollections.users))
         const unsubscripe = onSnapshot(q, (querySnapshot) => {
             const usersData = [];
             querySnapshot.forEach((doc) => {

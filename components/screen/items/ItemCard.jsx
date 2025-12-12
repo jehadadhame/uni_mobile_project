@@ -7,6 +7,7 @@ import { Button } from "react-native-paper";
 import { UserRole } from "../../../data/users/UserRole";
 import { getAuth } from "firebase/auth";
 import { checkIfDocExists } from "../../../utils/firebase/checkIfDocExist";
+import { AppCollections } from "../../../data/AppCollections";
 
 export const ItemCard = ({ item, uid, role, isFavoriteItemScreen }) => {
     console.log("reandering ItemCard")
@@ -18,7 +19,7 @@ export const ItemCard = ({ item, uid, role, isFavoriteItemScreen }) => {
     const onDelete = async () => {
         try {
             setDeleteLoading(true);
-            await deleteDoc(doc(db, "items", item.id));
+            await deleteDoc(doc(db, AppCollections.items, item.id));
         } catch (error) {
             console.log(error);
         } finally {
@@ -40,14 +41,14 @@ export const ItemCard = ({ item, uid, role, isFavoriteItemScreen }) => {
     }
 
     const removeFromFavorite = async () => {
-        const document = doc(db, "favorites", uid)
+        const document = doc(db, AppCollections.favorites, uid)
         await updateDoc(document, {
             regions: arrayRemove(item.id)
         })
     }
 
     const addToFavorite = async () => {
-        const document = doc(db, "favorites", uid)
+        const document = doc(db, AppCollections.favorites, uid)
 
         if (await checkIfDocExists(document)) {
             await updateDoc(document, {

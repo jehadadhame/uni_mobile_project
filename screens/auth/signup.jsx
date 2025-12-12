@@ -8,6 +8,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { db } from "../../utils/firebase/initfirebase";
 import { Button } from "react-native";
 import { TextInput } from "react-native-paper";
+import { AppCollections } from "../../data/AppCollections";
 
 export const SignUp = () => {
     const [userName, setUserName] = useState("");
@@ -27,7 +28,7 @@ export const SignUp = () => {
             const user = userCredential.user;
             console.log("User created:", userCredential.user);
 
-            await setDoc(doc(db, "users", user.uid), {
+            await setDoc(doc(db, AppCollections.users, user.uid), {
                 name: userName,
                 email: email,
                 createdAt: new Date(),

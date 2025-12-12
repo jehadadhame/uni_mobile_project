@@ -58,7 +58,7 @@ export const useItemsQuery = ({
 
 
 
-        const q = query(collection(db, "items"), ...conditions)
+        const q = query(collection(db, AppCollections.items), ...conditions)
 
         const unsub = onSnapshot(q, snap => {
             const list = []

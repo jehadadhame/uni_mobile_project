@@ -11,6 +11,7 @@ import { ItemStatus } from "../../../data/items/ItemStatus"
 import { ItemCategories } from "../../../data/items/ItemCategories"
 import { ItemCondition } from "../../../data/items/ItemCondition"
 import { useItemsQuery } from "../../../services/items/itemeQuerey"
+import { AppCollections } from "../../../data/AppCollections"
 
 export const FavoriteItem = () => {
 
@@ -57,7 +58,7 @@ export const FavoriteItem = () => {
     }
     useEffect(() => {
         const getFavoriteList = async () => {
-            const itemsDoc = await getDoc(doc(db, "favorites", user.uid))
+            const itemsDoc = await getDoc(doc(db, AppCollections.favorites, user.uid))
             console.log("favorites : ", itemsDoc)
             setFavoriteItems(itemsDoc.data()?.regions ?? [])
         }

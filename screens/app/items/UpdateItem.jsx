@@ -5,6 +5,7 @@ import { TextInput, SegmentedButtons, Button } from "react-native-paper";
 import { db } from "../../../utils/firebase/initfirebase";
 import { getAuth } from "firebase/auth";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { AppCollections } from "../../../data/AppCollections";
 export const UpdateItem = () => {
 
     const router = useRoute();
@@ -22,7 +23,7 @@ export const UpdateItem = () => {
         try {
             setLoading(true);
             console.log("updating item : ", item)
-            const res = await setDoc(doc(db, "items", item.id), {
+            const res = await setDoc(doc(db, AppCollections.items, item.id), {
                 title: title,
                 price: price,
                 category: category,
