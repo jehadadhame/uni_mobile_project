@@ -7,6 +7,7 @@ import { Button } from "react-native-paper";
 import { useAuth } from "../../../context/AppContext"
 import { UserRole } from "../../../data/users/UserRole"
 import { AppCollections } from "../../../data/AppCollections";
+import { User } from "../../../data/users/User";
 
 export const ItemDetails = () => {
     const router = useRoute();
@@ -15,13 +16,25 @@ export const ItemDetails = () => {
     const navigation = useNavigation();
     const [loading, setLoading] = useState(false);
     const [seller, setSeller] = useState(null)
+    console.log(seller)
     useEffect(() => {
         const getSeller = async () => {
             if (user.role == UserRole.Buyer) {
-                getDoc(doc(db, ))
+                const sellectDocument = await getDoc(doc(db, AppCollections.users, item.createdBy))
+                const sellerUser = new User({
+                    uid: item.createdBy,
+                    name: sellectDocument.data().name,
+                    email: sellectDocument.data().email,
+                    role: sellectDocument.data().role,
+                    createdAt: sellectDocument.data().createdAt
+                })
+                setSeller(sellerUser)
             }
         }
+        getSeller()
     }, [])
+
+
     const onDelete = async () => {
         try {
             setLoading(true);
@@ -45,26 +58,48 @@ export const ItemDetails = () => {
                 <Text >{item.status}</Text>
             </View>
 
+            {seller &&
+                <View >
+                    <Text >Seller info </Text>
+                    <Text >name : </Text>
+                    <Text >{seller.name}</Text>
+                    <Text >email : </Text>
+                    <Text >{seller.email}</Text>
+                </View>
+            }
+
 
             <View >
-                <Button
+                {user.role != UserRole.Buyer && <Button
                     mode="contained"
                     onPress={() => navigation.navigate("UpdateItem", { item: item })}
-
-                    label
                 >
                     Update
-                </Button>
+                </Button>}
 
-                <Button
-                    mode="contained"
-                    onPress={onDelete}
-                    loading={loading}
-
-                    label
-                >
-                    {loading ? "Deleting…" : "Delete"}
-                </Button>
+                {user.role != UserRole.Buyer &&
+                    <Button
+                        mode="contained"
+                        onPress={onDelete}
+                        loading={loading}
+                    >
+                        {loading ? "Deleting…" : "Delete"}
+                    </Button>
+                }
+                {user.role == UserRole.Buyer &&
+                    <Button
+                        mode="contained"
+                        onPress={() => navigation.navigate("ChatsNavigation", {
+                            screen: "ChatScreen",
+                            params: {
+                                otherUserId: seller.uid,
+                                currentUserId: user.uid,
+                            },
+                        })}
+                    >
+                        Contact
+                    </Button>
+                }
             </View>
         </View>
     );

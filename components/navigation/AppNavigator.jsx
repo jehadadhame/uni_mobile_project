@@ -2,12 +2,11 @@ import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { TouchableOpacity, Text, View, Alert } from 'react-native';
 import { Home } from '../../screens/app/home';
-import { ItemsScreen } from '../../screens/app/items/ItemsScreen';
 import { UsersScreen } from '../../screens/app/users/users';
 import { ItemNavigation } from './recourse-navigation/ItemNavigation';
-import { UpdateItem } from '../../screens/app/items/UpdateItem';
 import { getAuth, signOut } from 'firebase/auth';
 import { FavoriteItem } from '../../screens/app/items/FavoriteItem';
+import { ChatNavigation } from './recourse-navigation/ChatNavigation';
 
 const Drawer = createDrawerNavigator();
 const auth = getAuth();
@@ -88,6 +87,13 @@ export const AppNavigator = () => {
                 component={FavoriteItem}
                 options={{
                     title: "favorites"
+                }}
+            />
+            <Drawer.Screen
+                name='ChatsNavigation'
+                component={ChatNavigation}
+                options={{
+                    title: "Chats"
                 }}
             />
             <Drawer.Screen
